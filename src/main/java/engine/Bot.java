@@ -1,16 +1,20 @@
 package engine;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class Bot {
-    private WebDriver driver;
+    private final WebDriver driver;
+    private final WebDriverWait wait;
 
     public Bot() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         System.out.println("Chrome started");
     }
 
@@ -26,22 +30,30 @@ public class Bot {
     }
 
     public void click(By locator) {
-        WebElement element = driver.findElement(locator);
-        element.click();
+        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
         System.out.println("Clicked on element: " + locator);
     }
 
     public void type(By locator, String text) {
-        WebElement element = driver.findElement(locator);
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
         element.clear();
         element.sendKeys(text);
         System.out.println("Typed '" + text + "' into: " + locator);
     }
 
+    public void typeAndEnter(By locator, String text) {
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        element.clear();
+        element.sendKeys(text + Keys.ENTER);
+        System.out.println("Typed & ENTER '" + text + "' into: " + locator);
+    }
+
     public boolean isDisplayed(By locator) {
-        boolean displayed = driver.findElement(locator).isDisplayed();
-        System.out.println("Element displayed [" + locator + "]: " + displayed);
-        return displayed;
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).isDisplayed();
+    }
+
+    public String getAttribute(By locator, String name) {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).getAttribute(name);
     }
 
     public void quit() {
